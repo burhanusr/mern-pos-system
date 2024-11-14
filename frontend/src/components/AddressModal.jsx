@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import Button from "./../components/ui/Button/Button";
-import { ComboBox } from "./ui/Combobox";
+import { ComboBox } from "./ui/ComboBox";
 import { addAddress, updateAddress } from "../api/deliveryAddressApi";
 import toast from "react-hot-toast";
 
