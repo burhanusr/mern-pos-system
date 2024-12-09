@@ -1,82 +1,153 @@
 const jwt = require('jsonwebtoken');
+const { promisify } = require('util');
 
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+exports.register = catchAsync(async (req, res) => {
+  const { name, email, password, passwordConfirm } = req.body;
+
+  // check empty data
+  if (!name || !email || !password || !passwordConfirm) {
+    throw new AppError('Please fill out all fields.', 400);
+  }
+
+  // check existing user
+  const userExists = await User.findOne({ email });
+
+  if (userExists) {
+    throw new AppError('This email is already registered.', 400);
+  }
+
+  const newUser = await User.create({
+    name,
+    email,
+    password,
+    passwordConfirm,
   });
-};
 
-const createSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      name: newUser.name,
+      email: newUser.email,
+    },
+  });
+});
 
-  const expiredTime = process.env.JWT_COOKIE_EXPIRES * 24 * 60 * 60 * 1000;
+exports.login = catchAsync(async (req, res) => {
+  const { email, password } = req.body;
+
+  // check empty data
+  if (!email || !password) {
+    throw new AppError('Please fill out all fields.', 400);
+  }
+
+  // check user email and password
+  const user = await User.findOne({ email }).select('+password');
+
+  if (!user || !(await user.correctPassword(password))) {
+    throw new AppError('Incorrect email or password.', 401);
+  }
+
+  // generate jwt token
+  const accessToken = jwt.sign(
+    { id: user._id },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: '30s',
+    }
+  );
+
+  const refreshToken = jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: '1d',
+    }
+  );
+
+  // configure cookies setting
+  const expiredTime = process.env.JWT_COOKIES_EXPIRES * 24 * 60 * 60 * 1000;
+
   const cookieOptions = {
-    expires: new Date(Date.now() + expiredTime),
+    maxAge: expiredTime,
     httpOnly: true,
     sameSite: 'None',
   };
 
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
-  res.cookie('jwt', token, cookieOptions);
+  // send refreshToken to HTTPOnly Cookies
+  res.cookie('jwt', refreshToken, cookieOptions);
 
-  // remove password fields from output user data
-  user.password = undefined;
-
-  res.status(statusCode).json({
+  res.status(200).json({
     status: 'success',
     data: {
       name: user.name,
       email: user.email,
-      token: token,
-    },
-  });
-};
-
-exports.register = catchAsync(async (req, res) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-  });
-
-  // const token = signToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    // token: token,
-    data: {
-      user: newUser,
+      role: user.role,
+      accessToken,
     },
   });
 });
 
-exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+exports.refresh = catchAsync(async (req, res) => {
+  const cookies = req.cookies;
 
-  if (!email || !password) {
-    return next(new AppError('Please provide email and password!', 400));
+  if (!cookies?.jwt) {
+    throw new AppError('Unauthorized', 401);
   }
 
-  const user = await User.findOne({ email }).select('+password');
+  const refreshToken = cookies.jwt;
 
-  if (!user || !(await user.correctPassword(password))) {
-    return next(new AppError('Incorrect email or password', 401));
+  // verification token
+  const decoded = await promisify(jwt.verify)(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  // check if user still exists
+  const loggedUser = await User.findById(decoded.id);
+
+  if (!loggedUser) {
+    throw new AppError('Unauthorized', 401);
   }
 
-  createSendToken(user, 200, res);
+  const accessToken = jwt.sign(
+    { id: loggedUser._id },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: '30s',
+    }
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      name: loggedUser.name,
+      email: loggedUser.email,
+      role: loggedUser.role,
+      accessToken,
+    },
+  });
 });
 
 exports.logout = (req, res) => {
-  res.cookie('jwt', 'loggedout', {
-    expires: new Date(Date.now() + 10 * 1000),
+  const cookies = req.cookies;
+
+  if (!cookies?.jwt) {
+    throw new AppError('Unauthorized', 401);
+  }
+
+  res.clearCookie('jwt', {
     httpOnly: true,
+    sameSite: 'None',
+    secure: true,
   });
 
-  res.status(200).json({ status: 'success' });
+  res.status(200).json({
+    status: 'success',
+  });
 };

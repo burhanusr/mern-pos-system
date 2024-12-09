@@ -2,6 +2,7 @@ const fs = require('fs');
 const mongoose = require('mongoose');
 
 const AppError = require('./../utils/appError');
+const cloudinary = require('./../utils/cloudinary');
 
 /**
  * Error handler for handling error from database.
@@ -20,9 +21,7 @@ const handleDuplicateFieldsDB = (err) => {
 
 const handleValidationErrorDB = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
-
-  const message = `Invalid input data,${errors.join(',')}`;
-  return new AppError(message, 400);
+  return new AppError(errors[0], 400);
 };
 
 /**
@@ -98,14 +97,25 @@ module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
-  // remove image from public if error occurred before actualy saved data to database
-  if (req.file) fs.unlinkSync(req.file.path);
+  // remove image from cloudinary if error occurred before actualy saved data to database
+  if (req.cloudinaryId) {
+    cloudinary.uploader
+      .destroy(req.cloudinaryId)
+      .then(() => {
+        console.log('Rolled back Cloudinary upload successfully.');
+      })
+      .catch((cloudinaryError) => {
+        console.error(
+          'Failed to delete image from Cloudinary:',
+          cloudinaryError
+        );
+      });
+  }
 
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
     err = markAsOperationalErrors(err);
-
     sendErrorProd(err, res);
   }
 };

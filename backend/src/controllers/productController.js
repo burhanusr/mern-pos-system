@@ -7,6 +7,7 @@ const Tag = require('./../models/tagModel');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const APIFeatures = require('./../utils/apiFeatures');
+const cloudinary = require('./../utils/cloudinary');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -76,7 +77,13 @@ exports.getProduct = catchAsync(async (req, res) => {
 exports.createProduct = catchAsync(async (req, res) => {
   const payload = Object.assign({}, req.body);
 
-  if (req.file) payload.image = req.file.filename;
+  if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'POS System',
+    });
+    payload.imageUrl = result.secure_url;
+    req.cloudinaryId = result.public_id;
+  }
 
   if (payload.category) {
     const category = await Category.findOne({
@@ -112,6 +119,7 @@ exports.createProduct = catchAsync(async (req, res) => {
   });
 });
 
+// TODO: change image upload to cloudinary
 exports.updateProduct = catchAsync(async (req, res) => {
   // get request body
   const payload = Object.assign({}, req.body);
@@ -152,7 +160,6 @@ exports.updateProduct = catchAsync(async (req, res) => {
     throw new AppError('There is no product found with that ID!', 404);
   }
 
-  // update product
   const product = await Product.findByIdAndUpdate(req.params.id, payload, {
     new: true,
     runValidators: true,
