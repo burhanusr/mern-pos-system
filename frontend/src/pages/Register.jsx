@@ -40,7 +40,7 @@ export default function Register() {
   }
 
   return (
-    <div className="flex h-screen items-center justify-center px-4 sm:px-6 md:px-8 md:py-8">
+    <div className="flex min-h-screen items-center justify-center px-4 sm:px-6 md:px-8 md:py-8">
       <div className="rounded-md border bg-white p-8 shadow-lg">
         <header className="mb-8 text-center">
           <h1 className="text-lg font-bold">Register</h1>
@@ -108,12 +108,7 @@ export default function Register() {
             />
           </div>
           <div className="mt-4 w-full">
-            <Button
-              type="submit"
-              disabled={isLoading}
-              size="sm"
-              className="w-full"
-            >
+            <Button type="submit" size="sm" className="w-full">
               Register
             </Button>
           </div>

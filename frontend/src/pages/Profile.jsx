@@ -13,22 +13,21 @@ import { useAuth } from "../hooks/useAuth";
 import { updateCurrentUser } from "../api/userApi";
 import { getAllDeliveriesUser } from "../api/deliveryAddressApi";
 import { getOrder } from "../api/orderApi";
-import { getCurrentUser } from "../api/userApi";
+import toast from "react-hot-toast";
 
 export default function Profile() {
   const [userData, setUserData] = useState({ name: "", email: "" }); // profile tab user data
   const [userAddress, setUserAddress] = useState(null); // user address list data
   const [orders, setOrders] = useState(null); // user orders list data
   const [submit, setSubmit] = useState(false);
+  const { auth, setAuth } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        //get user profile data from local storage
-        const currentUser = await getCurrentUser();
         setUserData({
-          name: currentUser.data.name,
-          email: currentUser.data.email,
+          name: auth?.name,
+          email: auth?.email,
         });
 
         // get user address data
@@ -44,7 +43,7 @@ export default function Profile() {
     };
 
     fetchData();
-  }, [submit]);
+  }, [submit, auth]);
 
   async function handleUserUpdate(e) {
     e.preventDefault();
@@ -53,8 +52,14 @@ export default function Profile() {
 
     try {
       const response = await updateCurrentUser(name, email);
+      toast.success("Profile Updated!");
+      setAuth({
+        ...auth,
+        name: response.data.name,
+        email: response.data.email,
+      });
     } catch (err) {
-      console.log(err);
+      toast.error(err.response.data.message);
     }
   }
 
@@ -115,8 +120,9 @@ export default function Profile() {
                   <Button
                     size="sm"
                     variant="outline"
+                    type="button"
                     onClick={() =>
-                      setUserData({ name: user.name, email: user.email })
+                      setUserData({ name: auth?.name, email: auth?.email })
                     }
                   >
                     Cancel

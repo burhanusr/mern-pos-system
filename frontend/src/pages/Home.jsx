@@ -14,7 +14,7 @@ export default function Home() {
   const [tags, setTags] = useState(null);
   const [query, setQuery] = useState({});
 
-  const { user } = useAuth();
+  const { auth } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +39,7 @@ export default function Home() {
       <Sidebar categories={categories} setCategory={setQuery} />
       <div className="xl:pl-56">
         <main
-          className={`mx-auto max-w-3xl py-8 xl:ml-0 xl:max-w-none xl:px-4 ${user && "xl:mr-96"}`}
+          className={`mx-auto max-w-3xl py-8 xl:ml-0 xl:max-w-none xl:px-4 ${auth && "xl:mr-96"}`}
         >
           <div className="flex flex-wrap gap-1 text-xs md:text-sm">
             {tags &&
@@ -55,7 +55,7 @@ export default function Home() {
           </div>
 
           <div
-            className={`grid grid-cols-2 gap-4 pt-6 ${user ? "md:grid-cols-3" : "md:grid-cols-5"}`}
+            className={`grid grid-cols-2 gap-4 pt-6 ${auth ? "md:grid-cols-3" : "md:grid-cols-5"}`}
           >
             {products &&
               products.map((product) => (
@@ -70,7 +70,7 @@ export default function Home() {
                 />
               ))}
           </div>
-          {user && <SideCart />}
+          {auth && <SideCart />}
         </main>
       </div>
     </div>

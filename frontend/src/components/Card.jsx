@@ -1,4 +1,4 @@
-import { useCartContext } from "../hooks/useCartContext";
+import { useCart } from "../hooks/useCart";
 import { addCart } from "../api/cartApi";
 import { formatRupiah } from "../utils/formatCurrency";
 import Badge from "./ui/Badge";
@@ -12,7 +12,7 @@ export default function Card({
   tags,
   price,
 }) {
-  const { setIsUpdate } = useCartContext();
+  const { setIsUpdate } = useCart();
 
   const addItem = async () => {
     try {

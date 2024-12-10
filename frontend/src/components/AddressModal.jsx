@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-
 import Button from "./../components/ui/Button/Button";
 import { ComboBox } from "./ui/ComboBox";
 import { addAddress, updateAddress } from "../api/deliveryAddressApi";
@@ -50,7 +48,7 @@ export default function AddressModal({
       setSubmit();
       onClose();
     } catch (err) {
-      console.log(err);
+      toast.error(err.response.data.message);
     }
   }
 
@@ -73,13 +71,13 @@ export default function AddressModal({
       setSubmit();
       onClose();
     } catch (err) {
-      console.log(err);
+      toast.error(err.response.data.message);
     }
   }
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center transition-colors ${open ? "visible bg-black/20" : "invisible"}`}
+      className={`fixed inset-0 z-20 flex min-h-screen items-center justify-center transition-colors ${open ? "visible bg-black/20" : "invisible"}`}
     >
       <div
         onClick={(e) => e.stopPropagation()}

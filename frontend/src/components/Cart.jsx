@@ -1,7 +1,7 @@
 import CartItem from "./CartItem";
 
 import { useContext } from "react";
-import { CartContext } from "../context/cartContext";
+import { CartContext } from "../context/CartProvider";
 
 export default function Cart() {
   const { cart } = useContext(CartContext);
@@ -27,7 +27,7 @@ export default function Cart() {
               productId={item.product._id}
               name={item.product.name}
               price={item.product.price}
-              imageURL={item.product.image}
+              imageURL={item.product.imageUrl}
               quantity={item.quantity}
             />
           ))}

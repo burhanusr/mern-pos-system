@@ -7,7 +7,7 @@ import { createOrder } from "../api/orderApi";
 import Cart from "../components/Cart";
 import Button from "./../components/ui/Button/Button";
 import SelectAddressModal from "../components/SelectAddressModal";
-import { useCartContext } from "../hooks/useCartContext";
+import { useCart } from "../hooks/useCart";
 import { formatRupiah } from "../utils/formatCurrency";
 
 export default function Payment() {
@@ -15,7 +15,7 @@ export default function Payment() {
   const [address, setAddress] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
 
-  const { cart, setIsUpdate } = useCartContext();
+  const { cart, setIsUpdate } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {

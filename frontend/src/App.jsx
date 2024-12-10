@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
 import { AuthProvider } from "./context/AuthProvider";
-import { CartProvider } from "./context/cartContext";
+import { CartProvider } from "./context/CartProvider";
 
 import MainLayout from "./layout/MainLayout";
 import RequireAuth from "./components/RequireAuth";
@@ -16,25 +16,27 @@ import Invoice from "./pages/Invoice";
 function App() {
   return (
     <AuthProvider>
-      <div className="bg-beige h-full min-h-screen">
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+      <CartProvider>
+        <div className="h-full min-h-screen bg-slate-200">
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Home />} />
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<Home />} />
 
-              <Route element={<RequireAuth />}>
-                <Route path="/payment" element={<Payment />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/invoice" element={<Invoice />} />
+                <Route element={<RequireAuth />}>
+                  <Route path="/payment" element={<Payment />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/invoice/:id" element={<Invoice />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </Router>
-        <Toaster position="top-center" reverseOrder={true} />
-      </div>
+            </Routes>
+          </Router>
+          <Toaster position="top-center" reverseOrder={true} />
+        </div>
+      </CartProvider>
     </AuthProvider>
   );
 }

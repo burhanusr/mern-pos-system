@@ -1,4 +1,4 @@
-import { useCartContext } from "../hooks/useCartContext";
+import { useCart } from "../hooks/useCart";
 import { formatRupiah } from "../utils/formatCurrency";
 import { addCart, deleteCart } from "../api/cartApi";
 import Button from "./ui/Button/Button";
@@ -10,7 +10,7 @@ export default function CartItem({
   imageURL,
   quantity,
 }) {
-  const { setIsUpdate } = useCartContext();
+  const { setIsUpdate } = useCart();
 
   const addItem = async () => {
     try {
@@ -35,9 +35,8 @@ export default function CartItem({
       <div className="w-20">
         <img
           src={
-            imageURL
-              ? `http://localhost:3000/images/${imageURL}`
-              : "https://images.unsplash.com/photo-1568901346375-23c9450c58cd"
+            imageURL ||
+            "https://images.unsplash.com/photo-1568901346375-23c9450c58cd"
           }
           alt={`${name} image`}
           className="aspect-square rounded-md"
