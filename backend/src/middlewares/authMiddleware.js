@@ -7,24 +7,22 @@ const User = require('../models/userModel');
 
 exports.protect = catchAsync(async (req, res, next) => {
   const { authorization } = req.headers;
-  let token;
+  let accessToken;
 
-  // getting token
+  // getting accessToken
   if (authorization && authorization.startsWith('Bearer')) {
-    token = authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+    accessToken = authorization.split(' ')[1];
   }
 
-  // check if token exists
-  if (!token) {
+  // check if accessToken exists
+  if (!accessToken) {
     throw new AppError('You are not logged in!', 401);
   }
 
-  // verification token
+  // verification accessToken
   const decoded = await promisify(jwt.verify)(
-    token,
-    process.env.JWT_SECRET_KEY
+    accessToken,
+    process.env.ACCESS_TOKEN_SECRET
   );
 
   // check if user still exists
@@ -37,15 +35,15 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // check if user changed password after the token was issued
-  if (loggedUser.changedPasswordAfter(decoded.iat)) {
-    throw new AppError(
-      'User recently changed password! Please log in again.',
-      401
-    );
-  }
+  // if (loggedUser.changedPasswordAfter(decoded.iat)) {
+  //   throw new AppError(
+  //     'User recently changed password! Please log in again.',
+  //     401
+  //   );
+  // }
 
   // grant access to protected route
-  console.log('middleware protect');
+  // send all user data (except password) to request object
   req.user = loggedUser;
 
   next();

@@ -5,9 +5,6 @@ const multer = require('multer');
  */
 
 const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/images/products');
-  },
   filename: (req, file, cb) => {
     const ext = file.mimetype.split('/')[1];
     cb(null, `product-${Date.now()}.${ext}`);
@@ -27,4 +24,4 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-exports.uploadProductImage = upload.single('image');
+exports.uploadProductImage = upload.single('imageUrl');

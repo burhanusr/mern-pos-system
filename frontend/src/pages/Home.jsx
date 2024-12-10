@@ -1,4 +1,4 @@
-import { useAuthContext } from "../hooks/useAuthContext";
+import { useAuth } from "../hooks/useAuth";
 import Sidebar from "../components/Sidebar";
 import Card from "../components/Card";
 import Badge from "../components/ui/Badge";
@@ -14,7 +14,7 @@ export default function Home() {
   const [tags, setTags] = useState(null);
   const [query, setQuery] = useState({});
 
-  const { user } = useAuthContext();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,7 +62,7 @@ export default function Home() {
                 <Card
                   key={product._id}
                   productId={product._id}
-                  imageURL={product.image}
+                  imageURL={product.imageUrl}
                   title={product.name}
                   category={product.category}
                   tags={product.tags}

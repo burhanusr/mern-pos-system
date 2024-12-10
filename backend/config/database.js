@@ -13,7 +13,10 @@ dotenv.config();
 // };
 
 // DATABASE CONNECT -> MONGODB ATLAS
-const DB = process.env.DB.replace('<PASSWORD>', process.env.DB_PASSWORD);
+const DB = process.env.DB_ATLAS.replace(
+  '<PASSWORD>',
+  process.env.DB_ATLAS_PASSWORD
+);
 
 const connectDB = async () => {
   try {

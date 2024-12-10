@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const globalErrorHandler = require('./controllers/errorController');
 const AppError = require('./utils/appError');
 
+const authRouter = require('./routes/authRouter');
 const productRouter = require('./routes/productRouter');
 const categoryRouter = require('./routes/categoryRouter');
 const tagRouter = require('./routes/tagRouter');
@@ -30,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/images', express.static('public/images/products'));
 
 // route middleware
+app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/categories', categoryRouter);
 app.use('/api/v1/tags', tagRouter);

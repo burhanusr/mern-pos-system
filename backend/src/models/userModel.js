@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: [true, 'Please provide your email'],
+      required: [true, 'Please provide your email!'],
       unique: true,
       lowercase: true,
     },
@@ -21,19 +21,19 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
-      minLength: 8,
+      required: [true, 'Please provide a password!'],
+      minLength: [8, 'The password must be at least 8 characters long.'],
       select: false,
     },
     passwordConfirm: {
       type: String,
-      required: [true, 'Please confirm your password'],
+      required: [true, 'Please confirm your password!'],
       validate: {
         // only works with mongoose Model.create and Model.save()
         validator: function (el) {
           return el === this.password;
         },
-        message: 'Passwords are not the same!',
+        message: 'Passwords do not match. Please try again.',
       },
     },
     passwordChangedAt: Date,

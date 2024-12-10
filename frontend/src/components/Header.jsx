@@ -5,22 +5,18 @@ import toast from "react-hot-toast";
 import MenuTabs from "./MenuTabs";
 import { buttonVariants } from "./ui/Button/buttonVariants";
 import { logout } from "../api/authApi";
-import { useAuthContext } from "../hooks/useAuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
-  const { user, dispatch } = useAuthContext();
+  const { auth, setAuth } = useAuth();
 
   const navigate = useNavigate();
 
   async function handleLogout() {
     try {
-      // make api call to set cookies to loggedout
       await logout();
-      // remove user key in local storage
-      localStorage.removeItem("user");
-      // dispatch logout action
-      dispatch({ type: "LOGOUT" });
+      setAuth(null);
       navigate("/login");
     } catch (err) {
       toast.error(err.response.data.message);
@@ -36,7 +32,7 @@ export default function Header() {
           </Link>
 
           <div>
-            {user ? (
+            {auth?.accessToken ? (
               <div
                 className="relative cursor-pointer py-2 text-sm"
                 onMouseEnter={() => setOpen(true)}
@@ -52,7 +48,7 @@ export default function Header() {
                     alt=""
                   />
 
-                  <div className="hidden lg:block">{user?.name}</div>
+                  <div className="hidden lg:block">{auth?.name}</div>
                   <button className="size-6 text-slate-800 hover:text-slate-600 lg:hidden">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
