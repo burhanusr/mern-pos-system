@@ -9,7 +9,7 @@ export default function SideCart() {
   const { cart } = useCart();
 
   return (
-    <div className="fixed right-[max(0px,calc(50%-41rem))] top-24 hidden xl:block">
+    <div className="fixed right-[max(0px,calc(50%-43rem))] top-24 hidden xl:block">
       <div className="w-96 rounded-md bg-white px-4 py-6">
         <Cart />
         <div>
