@@ -43,10 +43,8 @@ export function AuthProvider({ children }) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        console.log("In Refresh", originalRequest);
 
         if (error.response.status === 403) {
-          console.log("JWT Expired");
           try {
             const response = await refresh();
             const currentUser = response.data;
