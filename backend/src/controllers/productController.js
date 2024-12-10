@@ -18,11 +18,6 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-const removeProductImage = (image) => {
-  const imagePath = `${__dirname}/../../public/images/products/${image}`;
-  if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-};
-
 exports.getAllProducts = catchAsync(async (req, res) => {
   if (req.query.category) {
     // take category id
@@ -164,9 +159,6 @@ exports.updateProduct = catchAsync(async (req, res) => {
     new: true,
     runValidators: true,
   });
-
-  // remove old product image in public if it existed
-  if (req.file) removeProductImage(oldProduct.image);
 
   res.status(200).json({
     status: 'success',

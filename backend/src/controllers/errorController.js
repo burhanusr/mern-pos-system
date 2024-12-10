@@ -33,7 +33,7 @@ const handleJWTError = () => {
 };
 
 const handleJWTExpiredError = () => {
-  return new AppError('Your token has expired!. Please log in again', 401);
+  return new AppError('Your token has expired!. Please log in again', 403);
 };
 
 /**

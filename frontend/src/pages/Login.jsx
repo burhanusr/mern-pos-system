@@ -1,42 +1,34 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { login } from "../api/authApi";
-import { useAuthContext } from "../hooks/useAuthContext";
 import Button from "./../components/ui/Button/Button";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Login() {
-  const [data, setData] = useState({ email: "", password: "" });
-  const [isLoading, setIsLoading] = useState(null);
-  const { dispatch } = useAuthContext();
+  const { setAuth } = useAuth();
+
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
+  const [data, setData] = useState({ email: "", password: "" });
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     const { email, password } = data;
-    setIsLoading(true);
 
     try {
-      // make api call and get api response
-      const user = await login(email, password);
-      // save login token to local storage
-      localStorage.setItem("user", JSON.stringify(user.data));
-      // update the auth context
-      dispatch({ type: "LOGIN", payload: user.data });
-      // empty form
+      const response = await login(email, password);
+      const currentUser = response?.data;
+      setAuth(currentUser);
       setData({ email: "", password: "" });
-      // send success message
       toast.success("Login Successful, Welcome!");
-      // navigate to home page
-      navigate("/");
-      setIsLoading(false);
+      navigate(from, { replace: true });
     } catch (err) {
-      setIsLoading(false);
-      console.log(err);
-      const message = err.response.data.message.split(",");
-      message.map((msg) => toast.error(msg));
+      toast.error(err.response.data.message);
     }
   }
 
@@ -93,7 +85,7 @@ export default function Login() {
               size="sm"
               className="w-full"
             >
-              {isLoading ? "Login..." : "Login"}
+              Login
             </Button>
           </div>
         </form>

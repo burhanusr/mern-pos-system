@@ -29,9 +29,8 @@ export default function Card({
         <img
           className="aspect-[4/3] rounded-md"
           src={
-            imageURL
-              ? `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/images/${imageURL}`
-              : "https://images.unsplash.com/photo-1568901346375-23c9450c58cd"
+            imageURL ||
+            "https://images.unsplash.com/photo-1568901346375-23c9450c58cd"
           }
           alt={`${title} image`}
         />

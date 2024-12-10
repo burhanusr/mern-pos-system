@@ -6,20 +6,19 @@ import { register } from "../api/authApi";
 import Button from "./../components/ui/Button/Button";
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const [data, setData] = useState({
     name: "",
     email: "",
     password: "",
     passwordConfirm: "",
   });
-  const [isLoading, setIsLoading] = useState(null);
-  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
 
     const { name, email, password, passwordConfirm } = data;
-    setIsLoading(true);
 
     try {
       // make api call
@@ -30,11 +29,8 @@ export default function Register() {
       toast.success("Successfully Registered, Please Login Again!");
       // navigate to login page
       navigate("/login");
-      setIsLoading(false);
     } catch (err) {
-      setIsLoading(false);
-      const message = err.response.data.message.split(",");
-      message.map((msg) => toast.error(msg));
+      toast.error(err.response.data.message);
     }
   }
 
@@ -118,7 +114,7 @@ export default function Register() {
               size="sm"
               className="w-full"
             >
-              {isLoading ? "Registered..." : "Register"}
+              Register
             </Button>
           </div>
         </form>

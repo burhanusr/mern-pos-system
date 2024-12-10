@@ -9,10 +9,11 @@ import {
 } from "../components/ui/Tabs";
 import UserAddress from "../components/UserAddress";
 import UserOrders from "../components/UserOrders";
-import { useAuthContext } from "../hooks/useAuthContext";
-import { updateCurrentUser } from "../api/authApi";
+import { useAuth } from "../hooks/useAuth";
+import { updateCurrentUser } from "../api/userApi";
 import { getAllDeliveriesUser } from "../api/deliveryAddressApi";
 import { getOrder } from "../api/orderApi";
+import { getCurrentUser } from "../api/userApi";
 
 export default function Profile() {
   const [userData, setUserData] = useState({ name: "", email: "" }); // profile tab user data
@@ -20,13 +21,15 @@ export default function Profile() {
   const [orders, setOrders] = useState(null); // user orders list data
   const [submit, setSubmit] = useState(false);
 
-  const { user, dispatch } = useAuthContext();
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         //get user profile data from local storage
-        setUserData({ name: user.name, email: user.email });
+        const currentUser = await getCurrentUser();
+        setUserData({
+          name: currentUser.data.name,
+          email: currentUser.data.email,
+        });
 
         // get user address data
         const address = await getAllDeliveriesUser();
@@ -41,12 +44,7 @@ export default function Profile() {
     };
 
     fetchData();
-  }, [user, submit]);
-
-  function userChange(e) {
-    const { name, value } = e.target;
-    setUserData({ ...userData, [name]: value });
-  }
+  }, [submit]);
 
   async function handleUserUpdate(e) {
     e.preventDefault();
@@ -55,13 +53,14 @@ export default function Profile() {
 
     try {
       const response = await updateCurrentUser(name, email);
-      const oldUser = JSON.parse(localStorage.getItem("user"));
-      response.data.token = oldUser.token;
-      localStorage.setItem("user", JSON.stringify(response.data));
-      dispatch({ type: "LOGIN", payload: response.data });
     } catch (err) {
       console.log(err);
     }
+  }
+
+  function userChange(e) {
+    const { name, value } = e.target;
+    setUserData({ ...userData, [name]: value });
   }
 
   return (
@@ -129,6 +128,7 @@ export default function Profile() {
               </form>
             </div>
           </TabsContent>
+
           <TabsContent value="tab2">
             <div>
               <header className="mb-4 flex gap-2">
